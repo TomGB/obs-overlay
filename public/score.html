@@ -8,57 +8,49 @@
         justify-content: space-between;
         align-items: center;
     }
-    .score{
+
+    .score {
         font-size: 25px;
         right: 0px;
         position: relative;
     }
+
+    .bananas {
+        border: solid 5px red
+    }
 </style>
 
-<div>
+<div id='1'>
     <span class='team-name'>
         Team One Name
     </span>
-    <span class='score' id='one-score'></span>
+    <span class='score' id='one-score'>0</span>
 </div>
-<div>
+<div id='2'>
     <span class='team-name'>
         Team Two Name
     </span>
-    <span class='score' id='two-score'></span>
+    <span class='score' id='two-score'>0</span>
 </div>
-<div>
+<div id='3'>
     <span class='team-name'>
         Team Three Name
     </span>
-    <span class='score' id='three-score'></span>
+    <span class='score' id='three-score'>0</span>
 </div>
-<div>
+<div id='4'>
     <span class='team-name'>
         Team Four Name
     </span>
-    <span class='score' id='four-score'></span>
+    <span class='score' id='four-score'>0</span>
 </div>
-
+<div id='js-active'></div>
+<div id='js-buzzes'></div>
+<button id='js-clear'>Clear</button>
+<script src="/socket.io.js"></script>
 <script>
-    const readTextFile = (file) => {
-        return new Promise(resolve => {
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var allText = rawFile.responseText;
-                        resolve(allText)
-                    }
-                }
-            }
-            rawFile.send(null);
-        })
-
-    }
     const run = async () => {
-        const text = JSON.parse(await readTextFile("state.json"))
+        const text = await (await fetch("state.json")).json()
 
         console.log(text.oneScore)
 
@@ -73,5 +65,34 @@
         fourScoreElm.innerHTML = text.fourScore
     }
 
+    run()
+
     setInterval(run, 1000)
+
+    const socket = io('http://localhost:8080')
+    const active = document.getElementById('js-active')
+    const buzzList = document.getElementById('js-buzzes')
+    const clear = document.getElementById('js-clear')
+
+    socket.on('active', (numberActive) => {
+        active.innerText = `${numberActive} joined`
+    })
+
+    socket.on('buzzes', (buzzes) => {
+        const buzzedUsers = buzzes.map(buzz => {
+            const p = buzz.split('-')
+            return { name: p[0], id: p[1] }
+        })
+
+        buzzList.innerHTML = buzzedUsers
+            .map(user => `<li>${user.name} ${user.id}</li>`)
+            .join('')
+
+        buzzedUsers.map(user => document.getElementById(user.id).classList.add('bananas'))
+    })
+
+    clear.addEventListener('click', () => {
+        socket.emit('clear')
+    })
+
 </script>

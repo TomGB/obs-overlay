@@ -8,10 +8,15 @@
         justify-content: space-between;
         align-items: center;
     }
-    .score{
+
+    .score {
         font-size: 25px;
         right: 0px;
         position: relative;
+    }
+
+    button {
+        padding: 20px;
     }
 </style>
 
@@ -19,59 +24,38 @@
     <span class='team-name'>
         Team One Name
     </span>
-    <span class='score' id='one-score'></span>
+    <button id='one-add'>+1</button>
+    <button id='one-minus'>-1</button>
 </div>
 <div>
     <span class='team-name'>
         Team Two Name
     </span>
-    <span class='score' id='two-score'></span>
+    <button id='two-add'>+1</button>
+    <button id='two-minus'>-1</button>
 </div>
 <div>
     <span class='team-name'>
         Team Three Name
     </span>
-    <span class='score' id='three-score'></span>
+    <button id='three-add'>+1</button>
+    <button id='three-minus'>-1</button>
 </div>
 <div>
     <span class='team-name'>
-        Team Four Name
+        Team four Name
     </span>
-    <span class='score' id='four-score'></span>
+    <button id='four-add'>+1</button>
+    <button id='four-minus'>-1</button>
 </div>
 
 <script>
-    const readTextFile = (file) => {
-        return new Promise(resolve => {
-            var rawFile = new XMLHttpRequest();
-            rawFile.open("GET", file, false);
-            rawFile.onreadystatechange = function () {
-                if (rawFile.readyState === 4) {
-                    if (rawFile.status === 200 || rawFile.status == 0) {
-                        var allText = rawFile.responseText;
-                        resolve(allText)
-                    }
-                }
-            }
-            rawFile.send(null);
-        })
-
+    const onClick = (e) => {
+        try {
+            fetch('update/' + e.target.id)
+        } catch (err) { }
     }
-    const run = async () => {
-        const text = JSON.parse(await readTextFile("state.json"))
+    const buttons = [...document.querySelectorAll('button')]
 
-        console.log(text.oneScore)
-
-        const oneScoreElm = document.getElementById('one-score')
-        const twoScoreElm = document.getElementById('two-score')
-        const threeScoreElm = document.getElementById('three-score')
-        const fourScoreElm = document.getElementById('four-score')
-
-        oneScoreElm.innerHTML = text.oneScore
-        twoScoreElm.innerHTML = text.twoScore
-        threeScoreElm.innerHTML = text.threeScore
-        fourScoreElm.innerHTML = text.fourScore
-    }
-
-    setInterval(run, 1000)
+    buttons.map(button => button.addEventListener('click', onClick))
 </script>
